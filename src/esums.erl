@@ -28,30 +28,30 @@
 -define(SHA256_FORMAT, "~64.16.0b").
 
 new() ->
-    #esums{size=0, md5=crypto:md5_init(), sha1=crypto:sha_init(), sha256=erlsha2:sha256_init()}.
+    #esums{size=0, md5=crypto:hash_init(md5), sha1=crypto:hash_init(sha), sha256=crypto:hash_init(sha256)}.
 
 update(#esums{size=Size, md5=MD5, sha1=SHA1, sha256=SHA256}, Data) when is_binary(Data) ->
     #esums{size=Size+byte_size(Data),
-           md5=crypto:md5_update(MD5, Data),
-           sha1=crypto:sha_update(SHA1, Data),
-           sha256=erlsha2:sha256_update(SHA256, Data)}.
+           md5=crypto:hash_update(MD5, Data),
+           sha1=crypto:hash_update(SHA1, Data),
+           sha256=crypto:hash_update(SHA256, Data)}.
 
 final(#esums{}=Context, Data) ->
     final(update(Context, Data)).
 
 final(#esums{size=Size, md5=MD5, sha1=SHA1, sha256=SHA256}) -> [
-    {md5, crypto:md5_final(MD5)},
-    {sha1, crypto:sha_final(SHA1)},
-    {sha256, erlsha2:sha256_final(SHA256)},
+    {md5, crypto:hash_final(MD5)},
+    {sha1, crypto:hash_final(SHA1)},
+    {sha256, crypto:hash_final(SHA256)},
     {size, Size}
 ].
 
 simple(md5, Data) ->
-    crypto:md5_final(crypto:md5_update(crypto:md5_init(), Data));
+    crypto:hash(md5, Data);
 simple(sha1, Data) ->
-    crypto:sha_final(crypto:sha_update(crypto:sha_init(), Data));
+    crypto:hash(sha, Data);
 simple(sha256, Data) ->
-    erlsha2:sha256_final(erlsha2:sha256_update(erlsha2:sha256_init(), Data));
+    crypto:hash(sha256, Data);
 simple(size, Data) ->
     byte_size(Data).
 
