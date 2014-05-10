@@ -16,3 +16,6 @@ deps:
 
 xref:
 	rebar skip_deps=true xref
+
+clean:
+	rebar clean
